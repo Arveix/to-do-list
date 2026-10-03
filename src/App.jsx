@@ -2,12 +2,30 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [pendingTasks, setPendingTasks] = useState(["Testing", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Testing again"]);
-  const [completedTasks, setCompletedTasks] = useState(["testingaaa"]);
+  const [pendingTasks, setPendingTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [taskInput, setTaskInput] = useState('');
 
-  const handleCheckboxChange = (event) => {
-    setCompletedTasks(prev => [...prev, pendingTasks[event.target.id]])
-    setPendingTasks(pendingTasks.filter((_, index) => event.target.id != index));
+  const handleTaskInputChange = (event) => {
+    setTaskInput(event.target.value);
+    console.log(taskInput);
+  }
+
+  const addNewTask = () => {
+    if(taskInput.trim() != '') {
+      setPendingTasks(prev => [...prev, taskInput]);
+      setTaskInput('');
+    }
+  }
+
+  const handlePendingCheckBoxChange = (event) => {
+    setCompletedTasks(prev => [...prev, pendingTasks[event.target.name]]);
+    setPendingTasks(pendingTasks.filter((_, index) => event.target.name != index));
+  };
+
+  const handleCompletedCheckBoxChange = (event) => {
+    setPendingTasks(prev => [...prev, completedTasks[event.target.name]]);
+    setCompletedTasks(completedTasks.filter((_, index) => event.target.name != index));
   };
 
   const deletePendingTask = (indexToBeDeleted) => {
@@ -21,23 +39,41 @@ function App() {
   return (
     <>
       <div className='max-w-xl m-auto flex flex-col p-5 rounded-sm bg-cusPrim text-cusSec'>
-        <h1 className='text-2xl text-center pb-3 border-b border-cusSec font-display font-black'>To-Do List</h1>
+        <h1 className='text-2xl text-center pb-3 font-display font-black'>To-Do List</h1>
+        <hr className='border border-cusSec'/>
+        
+        <div className='my-5 flex w-full'>
+          <input 
+          type='text'
+          className='p-2 border border-cusSec rounded-l-sm focus:outline-none grow-2'
+          placeholder='Add a new task'
+          value={taskInput}
+          onChange={handleTaskInputChange}
+        />
+        <button className='p-2 px-4 rounded-r-sm bg-cusSec text-cusPrim' onClick={addNewTask}> Add </button>
+        </div>
+
+        <hr className='border border-cusSec'/>
+
+        {/* PENDING TASKS */}
         <ul className='list-none mt-2 px-2'>
           {pendingTasks.map((elem, index) => {
             console.log(elem);
             return (
-              <li key={index} className='flex items-center my-2 justify-between rounded-xs'>
+              <li key={`pending${index}`} className='flex items-center my-2 justify-between rounded-xs'>
                 <div className='flex items-center m-2'>
                   <input type='checkbox'
-                    id={index}
-                    onChange={handleCheckboxChange}
-                    className='appearance-none shrink-0 mr-2 border border-cusSec rounded-xs w-3 h-3 checked:bg-cusSec'
+                    id={`pending${index}`}
+                    name={index}
+                    checked={false}
+                    onChange={handlePendingCheckBoxChange}
+                    className='appearance-none shrink-0 mr-2 border border-cusSec rounded-xs w-3 h-3 checked:bg-cusSec hover:bg-cusSec'
                   />
-                  <label htmlFor={index}>{elem}</label>
+                  <label htmlFor={`pending${index}`}>{elem}</label>
                 </div>
-                <span className='p-2 border-x border-cusSec hover:cursor-pointer hover:bg-cusSec hover:text-cusPrim'
+                <button className='p-2 border-x border-cusSec hover:cursor-pointer hover:bg-cusSec hover:text-cusPrim'
                   onClick={() => deletePendingTask(index)}
-                >Delete</span>
+                >Delete</button>
               </li>
             )
           })}
@@ -51,19 +87,20 @@ function App() {
               {completedTasks.map((elem, index) => {
                 console.log(elem);
                 return (
-                  <li key={index} className='flex items-center my-2 justify-between rounded-xs'>
+                  <li key={`completed${index}`} className='flex items-center my-2 justify-between rounded-xs'>
                     <div className='flex items-center m-2'>
                       <input type='checkbox'
-                        id={index}
+                        id={`completed${index}`}
+                        name={index}
                         checked={true}
-                        onChange={handleCheckboxChange}
-                        className='appearance-none shrink-0 mr-2 border border-cusSec rounded-xs w-3 h-3 checked:bg-cusSec'
+                        onChange={handleCompletedCheckBoxChange}
+                        className='appearance-none shrink-0 mr-2 border border-cusSec rounded-xs w-3 h-3 checked:bg-cusSec hover:bg-cusPrim'
                       />
-                      <label htmlFor={index} className='line-through'>{elem}</label>
+                      <label htmlFor={`completed${index}`} className='line-through'>{elem}</label>
                     </div>
-                    <span className='p-2 border-x border-cusSec hover:cursor-pointer hover:bg-cusSec hover:text-cusPrim'
+                    <button className='p-2 border-x border-cusSec hover:cursor-pointer hover:bg-cusSec hover:text-cusPrim'
                       onClick={() => deleteCompletedTask(index)}
-                    >Delete</span>
+                    >Delete</button>
                   </li>
                 )
               })}
